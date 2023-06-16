@@ -1,6 +1,13 @@
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Klasse die bei dem Spiel die Stats darstellt
+ *
+ * @author llatschbacher
+ * @version 2023-06-16
+ */
+
 public class Stats {
     private final Map<String, Integer> gewonneneSpiele;
     private final Map<String, Integer> verloreneSpiele;

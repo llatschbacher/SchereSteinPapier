@@ -4,6 +4,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Klasse die bei dem Spiel einen Player und seine Funktionen darstellt
+ *
+ * @author llatschbacher
+ * @version 2023-06-16
+ */
+
 public class Player {
     private final Socket socket;
     private final BufferedReader reader;
@@ -24,9 +31,10 @@ public class Player {
         this.name = name;
     }
 
-    public void flush(){
+    public void flush() {
         writer.flush();
     }
+
     public void send(String message) {
         writer.println(message);
     }
@@ -55,7 +63,6 @@ public class Player {
 
         return inputHolder[0];
     }
-
 
     public void close() throws IOException {
         reader.close();
