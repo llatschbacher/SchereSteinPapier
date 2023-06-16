@@ -5,58 +5,61 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
-    public static void main(String[] args) {
-        String serverAddress = args[0];
-        int serverPort = Integer.parseInt(args[1]);
+    private final String serverIp;
+    private final int serverPort;
 
+    public Client(String serverIp, int serverPort) {
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
+    }
+
+    public void start() {
         try {
-            Socket socket = new Socket(serverAddress, serverPort);
-            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-            System.out.println("Verbindung hergestellt, bitte Namen eingeben");
-            // Lese die Nachricht vom Server
-            String message = input.readLine();
-            System.out.println("Server: " + message);
+            Socket socket = new Socket(serverIp, serverPort);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
-            // Eingabe des Spielers
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Gib deinen Namen ein:");
+            String playerName = consoleReader.readLine();
+            out.println(playerName);
 
-            // Frage nach dem Namen des Spielers
-            System.out.print("Wie heißt du? ");
-            String playerName = userInput.readLine();
-            output.println(playerName);
-
-            // Warte auf Verbindungsinformationen vom Server
-            message = input.readLine();
-            System.out.println("Server: " + message);
-
-            // Warte auf die Spielzüge und Ergebnisse
-            while (true) {
-                // Frage nach dem Spielzug
-                message = input.readLine();
-                System.out.println("Server: " + message);
-                int move = Integer.parseInt(userInput.readLine());
-                output.println(move);
-
-                // Erhalte und zeige das Ergebnis
-                message = input.readLine();
-                System.out.println("Server: " + message);
-
-                // Frage nach einer erneuten Spielrunde
-                message = input.readLine();
-                System.out.println("Server: " + message);
-                String playAgain = userInput.readLine();
-                output.println(playAgain);
-
-                if (!playAgain.equalsIgnoreCase("ja")) {
-                    break;
-                }
+            String otherPlayerName = in.readLine();
+            if (otherPlayerName != null) {
+                System.out.println(otherPlayerName);
             }
 
-            // Schließe die Verbindung
-            socket.close();
+            while (true) {
+                String spielzugAnfrage = in.readLine();
+                System.out.println(spielzugAnfrage);
+
+                int spielzug = Integer.parseInt(consoleReader.readLine());
+                out.println(spielzug);
+
+                String antwort = in.readLine();
+                System.out.println(antwort);
+
+                String spielerAntwort = consoleReader.readLine();
+                out.println(spielerAntwort);
+
+                String gewinner = in.readLine();
+                System.out.println("Gewinner: " + gewinner);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        if (args.length < 2) {
+            System.out.println("Bitte geben Sie die IP-Adresse und den Port als Argumente an.");
+            return;
+        }
+
+        String serverIp = args[0];
+        int serverPort = Integer.parseInt(args[1]);
+
+        Client client = new Client(serverIp, serverPort);
+        client.start();
     }
 }

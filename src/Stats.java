@@ -21,18 +21,29 @@ public class Stats {
     }
 
     private void erhoeheGewonneneSpiele(Player player) {
-        gewonneneSpiele.put(player.getName(), gewonneneSpiele.getOrDefault(player.getName(), 0) + 1);
+        String name = player.getName();
+        int gewonnene = gewonneneSpiele.getOrDefault(name, 0);
+        gewonneneSpiele.put(name, gewonnene + 1);
     }
 
     private void erhoeheVerloreneSpiele(Player player) {
-        verloreneSpiele.put(player.getName(), verloreneSpiele.getOrDefault(player.getName(), 0) + 1);
+        String name = player.getName();
+        int verlorene = verloreneSpiele.getOrDefault(name, 0);
+        verloreneSpiele.put(name, verlorene + 1);
     }
 
     public int getGewonneneSpiele(Player player) {
-        return gewonneneSpiele.getOrDefault(player.getName(), 0);
+        String name = player.getName();
+        return gewonneneSpiele.getOrDefault(name, 0);
     }
 
     public int getVerloreneSpiele(Player player) {
-        return verloreneSpiele.getOrDefault(player.getName(), 0);
+        String name = player.getName();
+        return verloreneSpiele.getOrDefault(name, 0);
+    }
+
+    public void setGewonneneSpiele(Player player, int gewonnene) {
+        String name = player.getName();
+        gewonneneSpiele.put(name, gewonnene);
     }
 }

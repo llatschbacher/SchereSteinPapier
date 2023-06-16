@@ -1,74 +1,65 @@
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class Player {
+    private final Socket socket;
+    private final BufferedReader reader;
+    private final PrintWriter writer;
     private String name;
-    private int spielzug;
-    private String antwort;
-    private CountDownLatch nameEingabeLatch;
-    private CountDownLatch spielzugEingabeLatch;
-    private CountDownLatch antwortEingabeLatch;
 
-    public Player() {
-        this.nameEingabeLatch = new CountDownLatch(1);
-        this.spielzugEingabeLatch = new CountDownLatch(1);
-        this.antwortEingabeLatch = new CountDownLatch(1);
-    }
-
-    public void warteAufNamen() {
-        System.out.println("Warte auf Namen des Spielers...");
-        try {
-            nameEingabeLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void warteAufSpielzug() {
-        System.out.println("Warte auf Spielzug...");
-        try {
-            spielzugEingabeLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void warteAufAntwort() {
-        System.out.println("Warte auf Antwort...");
-        try {
-            antwortEingabeLatch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public Player(Socket socket) throws IOException {
+        this.socket = socket;
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.writer = new PrintWriter(socket.getOutputStream(), false);
     }
 
     public String getName() {
         return name;
     }
 
-    public int getSpielzug() {
-        return spielzug;
-    }
-
-    public String getAntwort() {
-        return antwort;
-    }
-
-    // Aufruf dieser Methode, um den Namen des Spielers festzulegen
     public void setName(String name) {
         this.name = name;
-        nameEingabeLatch.countDown();
     }
 
-    // Aufruf dieser Methode, um den Spielzug des Spielers festzulegen
-    public void setSpielzug(int spielzug) {
-        this.spielzug = spielzug;
-        spielzugEingabeLatch.countDown();
+    public void flush(){
+        writer.flush();
+    }
+    public void send(String message) {
+        writer.println(message);
     }
 
-    // Aufruf dieser Methode, um die Antwort des Spielers festzulegen
-    public void setAntwort(String antwort) {
-        this.antwort = antwort;
-        antwortEingabeLatch.countDown();
+    public String receive() throws IOException {
+        return reader.readLine();
+    }
+
+    public String receiveAsync() throws IOException {
+        final String[] inputHolder = new String[1]; // Array zum Halten der Eingabe
+
+        Thread thread = new Thread(() -> {
+            try {
+                inputHolder[0] = reader.readLine(); // Asynchrone Leseoperation
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        thread.start(); // Starten des Hintergrundthreads
+        try {
+            thread.join(); // Warten auf Abschluss des Hintergrundthreads
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return inputHolder[0];
+    }
+
+
+    public void close() throws IOException {
+        reader.close();
+        writer.close();
+        socket.close();
     }
 }
