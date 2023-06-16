@@ -17,6 +17,20 @@ public class Game {
         aktualisierenDerStats();
     }
 
+    public String getGewinner() {
+        int spielzug1 = player1.getSpielzug();
+        int spielzug2 = player2.getSpielzug();
+
+        if (spielzug1 == spielzug2) {
+            return "Unentschieden";
+        } else if ((spielzug1 == 1 && spielzug2 == 3) ||
+                (spielzug1 == 2 && spielzug2 == 1) ||
+                (spielzug1 == 3 && spielzug2 == 2)) {
+            return player1.getName();
+        } else {
+            return player2.getName();
+        }
+    }
     private void wartenAufNamen() {
         // Warten bis beide Player ihre Namen eingegeben haben
         player1.warteAufNamen();
@@ -31,7 +45,7 @@ public class Game {
         player2.warteAufSpielzug();
     }
 
-    private void ermittelnUndAnzeigenDesGewinners() {
+    public String ermittelnUndAnzeigenDesGewinners() {
         int spielzugPlayer1 = player1.getSpielzug();
         int spielzugPlayer2 = player2.getSpielzug();
 
@@ -81,10 +95,11 @@ public class Game {
                 break;
         }
 
-                System.out.println(player1.getName() + " spielt " + getSpielzugName(spielzugPlayer1) + ", " + player2.getName() + " spielt " + getSpielzugName(spielzugPlayer2) + ", " + gewinner + " gewinnt!");
+        System.out.println(player1.getName() + " spielt " + getSpielzugName(spielzugPlayer1) + ", " + player2.getName() + " spielt " + getSpielzugName(spielzugPlayer2) + ", " + gewinner + " gewinnt!");
+        return gewinner;
     }
 
-    private String getSpielzugName(int spielzug) {
+    String getSpielzugName(int spielzug) {
         //(0/Schere/1/Stein/2/Papier)
         switch(spielzug){
             case 0:
@@ -98,7 +113,7 @@ public class Game {
         }
     }
 
-    private void aktualisierenDerStats() {
+    void aktualisierenDerStats() {
         stats.aktualisiereStats(player1, player2, gewinner);
         System.out.println(player1.getName() + " hat bisher " + stats.getGewonneneSpiele(player1) +
                 " mal gewonnen und " + stats.getVerloreneSpiele(player1) + " mal verloren!");

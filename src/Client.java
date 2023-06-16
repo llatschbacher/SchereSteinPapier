@@ -1,111 +1,62 @@
-import java.io.*;
-import java.net.ServerSocket;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Client {
+    public static void main(String[] args) {
+        String serverAddress = args[0];
+        int serverPort = Integer.parseInt(args[1]);
 
-    private static final String SERVER_IP = "127.0.0.1";
-    private static final int SERVER_PORT = 12345;
+        try {
+            Socket socket = new Socket(serverAddress, serverPort);
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+            System.out.println("Verbindung hergestellt, bitte Namen eingeben");
+            // Lese die Nachricht vom Server
+            String message = input.readLine();
+            System.out.println("Server: " + message);
 
-    private Socket socket;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
+            // Eingabe des Spielers
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 
-    public void connectToServer() {
-        try (
-                ServerSocket server = new ServerSocket(5000);
-        ) {
+            // Frage nach dem Namen des Spielers
+            System.out.print("Wie heißt du? ");
+            String playerName = userInput.readLine();
+            output.println(playerName);
+
+            // Warte auf Verbindungsinformationen vom Server
+            message = input.readLine();
+            System.out.println("Server: " + message);
+
+            // Warte auf die Spielzüge und Ergebnisse
             while (true) {
-                Socket client = server.accept();
+                // Frage nach dem Spielzug
+                message = input.readLine();
+                System.out.println("Server: " + message);
+                int move = Integer.parseInt(userInput.readLine());
+                output.println(move);
 
-                // Anstatt (auf dem main-Thread) den Client zu bearbeiten
-                // wird hier jetzt ein neuer Thread gestartet.
-                ClientHandler handler = new ClientHandler(client);
-                new Thread(handler).start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                // Erhalte und zeige das Ergebnis
+                message = input.readLine();
+                System.out.println("Server: " + message);
 
-        /*try {
-            socket = new Socket(SERVER_IP, SERVER_PORT);
-            System.out.println("Connected to server.");
+                // Frage nach einer erneuten Spielrunde
+                message = input.readLine();
+                System.out.println("Server: " + message);
+                String playAgain = userInput.readLine();
+                output.println(playAgain);
 
-            inputStream = new ObjectInputStream(socket.getInputStream());
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-
-            Scanner scanner = new Scanner(System.in);
-            String command;
-            while (true) {
-                System.out.print("Enter command (get <instrument> | exit): ");
-                command = scanner.nextLine();
-
-                outputStream.writeObject(command);
-                outputStream.flush();
-
-                if (command.equals("exit")) {
+                if (!playAgain.equalsIgnoreCase("ja")) {
                     break;
                 }
-
             }
+
+            // Schließe die Verbindung
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
-    }
-
-    private static class ClientHandler implements Runnable {
-        private final Socket client;
-
-        public ClientHandler(Socket client) {
-            this.client = client;
         }
-
-        @Override
-        public void run() {
-            // Existierende statische handleClient-Methode vom neuen Thread aus aufrufen
-            handleClient(client);
-        }
-    }
-
-    private static void handleClient(Socket client) {
-        try (
-                client;
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-        ){
-
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) {
-        Client client = new Client();
-        client.connectToServer();
     }
 }
-
